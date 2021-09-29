@@ -31,6 +31,7 @@ import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.location.Criteria;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -143,15 +144,17 @@ public class MainActivity extends AppCompatActivity {
                 usbSerialPort.setParameters(Integer.parseInt(editBaudRate.getText().toString()),
                         8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
 
-                // Request GPS updates
+                // Request GPS updates using locationCriteria
                 locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 gpsLocationListener =
                         new GPSLocationListener(locationManager,
                                 usbSerialPort, textLat, textLon, textAccuracy,
                                 getApplicationContext());
+                Criteria locationCriteria = new Criteria();
+                locationCriteria.setAccuracy(Criteria.ACCURACY_FINE);
                 locationManager.requestLocationUpdates(
-                        LocationManager.GPS_PROVIDER, 1000, 0,
-                        gpsLocationListener);
+                        locationManager.getBestProvider(locationCriteria, true),
+                        1000, 0, gpsLocationListener);
 
                 // Print message
                 Toast.makeText(getApplicationContext(),
