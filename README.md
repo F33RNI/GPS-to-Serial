@@ -20,7 +20,7 @@ Simple application for sending phone's GPS coordinates via USB serial port. A US
 ## Serial packet structure
 The packet consists of 11 bytes. At the beginning of the packet, 4 bytes are assigned to latitude, 4 to longitude. Then 1 byte of the XOR check-sum (XOR check-sum is calculated using 8 bytes of latitude and longitude), at the end 2 bytes of the packet ending: 0xEE and 0xEF.
 
-**Latitude and longitude values are signed integers.** 6 decimal places (from degrees) are converted to 6 integer digits. (-90000000 to 90000000 for latitude and -180000000 to 180000000 for longitude)
+**Latitude and longitude values are signed integers.** 6 decimal places (from degrees) are converted to 6 integer digits. (-90000000 to 90000000 for latitude and -180000000 to 180000000 for longitude). To get back the degrees of the float type, signed integers must be **divided by 1000000**.
 
 **Latitude and longitude bytes are in Big-endian order.**
 
