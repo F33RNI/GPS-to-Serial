@@ -1,5 +1,7 @@
 # GPS-to-Serial
 
+![Icon](ICON.png "Icon")
+
 [![GitHub license](https://img.shields.io/github/license/XxOinvizioNxX/GPS-to-Serial)](https://github.com/XxOinvizioNxX/GPS-to-Serial/blob/main/LICENSE)
 [![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Ffern_hertz)](https://twitter.com/fern_hertz)
 
