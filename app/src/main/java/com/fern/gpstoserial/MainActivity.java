@@ -1,3 +1,24 @@
+/*
+ * Copyright (C) 2021 Fern H. (Pavel Neshumov), GPS to Serial Android application
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.gnu.org/licenses/agpl-3.0.en.html
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package com.fern.gpstoserial;
 
 import android.Manifest;
@@ -70,70 +91,84 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnStop).setOnClickListener(view -> stopGPStoSerial());
     }
 
+    /**
+     * Opens serial port and start GPS updates
+     */
     private void startGPStoSerial() {
-        // Find all available drivers from attached devices
-        UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        List<UsbSerialDriver> availableDrivers =
-                UsbSerialProber.getDefaultProber().findAllDrivers(manager);
-        if (availableDrivers.isEmpty()) {
-            Toast.makeText(getApplicationContext(), "No serial USB devices!",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
+        if (locationManager == null || gpsLocationListener == null || usbSerialPort == null) {
+            // Reset variables
+            locationManager = null;
+            gpsLocationListener = null;
+            usbSerialPort = null;
 
-        // Open a connection to the first available driver
-        UsbSerialDriver driver;
-        try {
-            driver = availableDrivers.get(0);
-        } catch (Exception ignored) {
-            Toast.makeText(getApplicationContext(), "No correct serial USB devices!",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
+            // Find all available drivers from attached devices
+            UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+            List<UsbSerialDriver> availableDrivers =
+                    UsbSerialProber.getDefaultProber().findAllDrivers(manager);
+            if (availableDrivers.isEmpty()) {
+                Toast.makeText(getApplicationContext(), "No serial USB devices!",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        // Check and grant permissions
-        if (!checkAndRequestPermission(manager, driver.getDevice())) {
-            Toast.makeText(getApplicationContext(), "Please grant permission and try again",
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
+            // Open a connection to the first available driver
+            UsbSerialDriver driver;
+            try {
+                driver = availableDrivers.get(0);
+            } catch (Exception ignored) {
+                Toast.makeText(getApplicationContext(), "No correct serial USB devices!",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        // Open USB device
-        UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
-        if (connection == null) {
-            Toast.makeText(getApplicationContext(), "Error opening USB device!",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
+            // Check and grant permissions
+            if (!checkAndRequestPermission(manager, driver.getDevice())) {
+                Toast.makeText(getApplicationContext(),
+                        "Please grant permission and try again", Toast.LENGTH_LONG).show();
+                return;
+            }
 
-        try {
-            // Open first available serial port
-            usbSerialPort = driver.getPorts().get(0);
-            usbSerialPort.open(connection);
-            usbSerialPort.setParameters(Integer.parseInt(editBaudRate.getText().toString()),
-                    8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+            // Open USB device
+            UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
+            if (connection == null) {
+                Toast.makeText(getApplicationContext(), "Error opening USB device!",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            // Request GPS updates
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            gpsLocationListener =
-                    new GPSLocationListener(locationManager,
-                            usbSerialPort, textLat, textLon, textAccuracy, getApplicationContext());
-            locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, 1000, 0,
-                    gpsLocationListener);
+            try {
+                // Open first available serial port
+                usbSerialPort = driver.getPorts().get(0);
+                usbSerialPort.open(connection);
+                usbSerialPort.setParameters(Integer.parseInt(editBaudRate.getText().toString()),
+                        8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
 
-            // Print message
-            Toast.makeText(getApplicationContext(),
-                    "GPS reading has started", Toast.LENGTH_LONG).show();
-        } catch (IOException e) {
-            // Print exception message
-            Toast.makeText(getApplicationContext(),
-                    "Error starting GPS listener or opening serial port!",
-                    Toast.LENGTH_LONG).show();
-            Log.e(TAG, "Error starting GPS listener or opening serial port!", e);
+                // Request GPS updates
+                locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                gpsLocationListener =
+                        new GPSLocationListener(locationManager,
+                                usbSerialPort, textLat, textLon, textAccuracy,
+                                getApplicationContext());
+                locationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER, 1000, 0,
+                        gpsLocationListener);
+
+                // Print message
+                Toast.makeText(getApplicationContext(),
+                        "GPS reading has started", Toast.LENGTH_LONG).show();
+            } catch (IOException e) {
+                // Print exception message
+                Toast.makeText(getApplicationContext(),
+                        "Error starting GPS listener or opening serial port!",
+                        Toast.LENGTH_LONG).show();
+                Log.e(TAG, "Error starting GPS listener or opening serial port!", e);
+            }
         }
     }
 
+    /**
+     * Stops GPS updates and closes serial port
+     */
     @SuppressLint("SetTextI18n")
     private void stopGPStoSerial() {
         try {
