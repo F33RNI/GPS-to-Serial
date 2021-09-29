@@ -27,7 +27,7 @@ At the beginning of the packet, 4 bytes are assigned to latitude, 4 to longitude
 Packet structure:
 - byte 0-3: latitude bytes in big-endian order (-90000000 to 90000000)
 - byte 4-7: longitude bytes in big-endian order (-180000000 to 180000000)
-- byte 8: XOR chech-sum of 0-7 bytes
+- byte 8: XOR check-sum of 0-7 bytes
 - byte 9: 0xEE
 - byte 10: 0xEF
 
