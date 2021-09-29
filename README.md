@@ -22,3 +22,7 @@ Packet structure:
 - byte 8: XOR chech-sum of 0-7 bytes
 - byte 9: 0xEE
 - byte 10: 0xEF
+
+## Credits
+
+The app uses the [usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android) library.
