@@ -24,12 +24,26 @@ At the beginning of the packet, 4 bytes are assigned to latitude, 4 to longitude
 
 **Latitude and longitude bytes are in Big-endian order.**
 
-Packet structure:
+### Packet structure:
 - byte 0-3: latitude bytes in big-endian order (-90000000 to 90000000)
 - byte 4-7: longitude bytes in big-endian order (-180000000 to 180000000)
 - byte 8: XOR check-sum of 0-7 bytes
 - byte 9: 0xEE
 - byte 10: 0xEF
+
+### Serial packet example:
+
+Serial packet example for latitude: `40.689249` and longitude: `-74.044500`
+
+- Latitude: `40.689249` -> `40689249` -> `02 6C DE 61`
+- Longitude: `-74.044500` -> `-74044500` -> `FB 96 2B AC`
+- XOR check-sum: `02 XOR 6C XOR DE XOR 61 XOR FB XOR 96 XOR 2B XOR AC` -> `3B`
+- Packet ending: `EE EF`
+
+Result:
+- (HEX) `02 6C DE 61 FB 96 2B AC 3B EE EF`
+- (DEC) `2 108 222 97 251 150 43 172 59 238 239`
+- (BIN) `00000010 01101100 11011110 01100001 11111011 10010110 00101011 10101100 00111011 11101110 11101111`
 
 ## Credits
 
